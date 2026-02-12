@@ -11,12 +11,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class TodoListController {
+public class TodoController {
     private final TodoListService todoListService;
 
     @PostMapping("/todos")
-    public ResponseEntity<CreateTodoListResponse> createTodo(@RequestBody CreateTodoListRequest request) {
-        CreateTodoListResponse result = todoListService.save(request);
+    public ResponseEntity<CreateTodoResponse> createTodo(@RequestBody CreateTodoRequest request) {
+        CreateTodoResponse result = todoListService.save(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
@@ -26,11 +26,12 @@ public class TodoListController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @GetMapping("/todos/{author}")
-    public ResponseEntity<List<GetOneTodoResponse>> getAllTodos(@PathVariable String author) {
-        List<GetOneTodoResponse> result = todoListService.getAll(author);
+    @GetMapping("/todos")
+    public ResponseEntity<List<GetOneTodoResponse>> getAllTodos(
+            @RequestParam(value = "authorId", required = false) Long authorId
+    ) {
+        List<GetOneTodoResponse> result = todoListService.getAll(authorId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
-
     }
 
     @PutMapping("/todos/{id}")

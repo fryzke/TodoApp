@@ -3,40 +3,48 @@ package com.example.todoapp.jpa.service;
 import com.example.todoapp.jpa.dto.*;
 import com.example.todoapp.jpa.entity.TodoList;
 import com.example.todoapp.jpa.repository.TodoListRepository;
+import com.example.todoapp.jpa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-
 public class TodoListService {
     private final TodoListRepository todoListRepository;
-    //저장
+    private final UserRepository userRepository;
+
+    // 저장
     @Transactional
-    public CreateTodoListResponse save(CreateTodoListRequest request) {
+    public CreateTodoResponse save(CreateTodoRequest request) {
+        User user = userRepository.findById(request.getAuthorId()).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
+        );
+
         TodoList todoList = new TodoList(
                 request.getName(),
                 request.getContent(),
-                request.getAuthor(),
-                request.getCreateDate(),
+                user, // String이 아닌 User 객체
                 request.getPassword()
         );
+
         TodoList savedTodoList = todoListRepository.save(todoList);
 
-        return new CreateTodoListResponse(
+        return new CreateTodoResponse(
                 savedTodoList.getId(),
                 savedTodoList.getName(),
                 savedTodoList.getContent(),
-                savedTodoList.getAuthor(),
+                savedTodoList.getAuthor().getName(), // User 객체에서 이름만 추출
                 savedTodoList.getCreateDate(),
                 savedTodoList.getEditDate()
         );
     }
-    //단건 조회
+
+    // 단건 조회
     @Transactional(readOnly = true)
     public GetOneTodoResponse getOne(Long id) {
         TodoList todoList = todoListRepository.findById(id).orElseThrow(
@@ -47,70 +55,70 @@ public class TodoListService {
                 todoList.getId(),
                 todoList.getName(),
                 todoList.getContent(),
-                todoList.getAuthor(),
+                todoList.getAuthor().getName(), // 작성자 이름 반환
                 todoList.getCreateDate(),
                 todoList.getEditDate()
         );
     }
-    //전체조회
+
+    // 전체 조회 (작성자 ID 기준 필터링 추가 가능)
     @Transactional(readOnly = true)
-    public List<GetOneTodoResponse> getAll(String author) {
+    public List<GetOneTodoResponse> getAll(Long authorId) {
         List<TodoList> all;
-        if(author != null && !author.isEmpty()) {
-            all = todoListRepository.findByAuthorOrderByEditDateDesc(author);
-        }else {
+
+        if (authorId != null) {
+            all = todoListRepository.findByAuthor_IdOrderByEditDateDesc(authorId);
+        } else {
             all = todoListRepository.findAllByOrderByEditDateDesc();
         }
 
-        List<GetOneTodoResponse> dtos = new ArrayList<>();
-        for(TodoList todoList : all) {
-            GetOneTodoResponse dto = new GetOneTodoResponse(
-                    todoList.getId(),
-                    todoList.getName(),
-                    todoList.getContent(),
-                    todoList.getAuthor(),
-                    todoList.getCreateDate(),
-                    todoList.getEditDate()
-            );
-            dtos.add(dto);
-        }
-        return dtos;
+        return all.stream()
+                .map(todo -> new GetOneTodoResponse(
+                        todo.getId(),
+                        todo.getName(),
+                        todo.getContent(),
+                        todo.getAuthor().getName(), // 작성자 이름 추출
+                        todo.getCreateDate(),
+                        todo.getEditDate()
+                ))
+                .collect(Collectors.toList());
     }
-    //수정
+    // 수정
     @Transactional
     public UpdateTodoResponse update(Long id, UpdateTodoRequest request) {
         TodoList todoList = todoListRepository.findById(id).orElseThrow(
                 () -> new IllegalStateException("없는 일정입니다.")
         );
 
-        if(!todoList.getPassword().equals(request.getPassword())){
+        if (!todoList.getPassword().equals(request.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
         }
+
+        // TodoList 엔티티의 update 메서드 호출 (name과 content 수정)
         todoList.update(
-                request.getName(),
-                request.getAuthor()
+                request.getName()
         );
 
         return new UpdateTodoResponse(
                 todoList.getId(),
                 todoList.getName(),
                 todoList.getContent(),
-                todoList.getAuthor(),
+                todoList.getAuthor().getName(),
                 todoList.getCreateDate(),
                 todoList.getEditDate()
-
         );
     }
-    //삭제
+
+    // 삭제
     @Transactional
     public void delete(Long id, DeleteTodoRequest request) {
         TodoList todoList = todoListRepository.findById(id).orElseThrow(
                 () -> new IllegalStateException("없는 일정입니다.")
         );
 
-        if(!todoList.getPassword().equals(request.getPassword())) {
+        if (!todoList.getPassword().equals(request.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
         }
-        todoListRepository.deleteById(id);
+        todoListRepository.delete(todoList); // deleteById 대신 객체 삭제 권장
     }
 }

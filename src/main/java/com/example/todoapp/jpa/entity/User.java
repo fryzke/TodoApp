@@ -12,11 +12,10 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Table(name = "todo")
+@Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-
-public class TodoList {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,14 +23,10 @@ public class TodoList {
     @Column(length = 30, nullable = false)
     private String name;
 
-    @Column(length = 200, nullable = false)
-    private String content;
+    @Column(length = 30, nullable = false)
+    private String email;
 
-    @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩 권장
-    @JoinColumn(name = "author_id", nullable = false)
-    private User author;
-
-    @Column(length = 10, nullable = false)
+    @Column(length = 30, nullable = false)
     private String password;
 
     @CreatedDate
@@ -41,14 +36,13 @@ public class TodoList {
     @LastModifiedDate
     private LocalDateTime editDate;
 
-    public TodoList(String name, String content, User author, String password) {
+    public User(String name, String email, String password) {
         this.name = name;
-        this.content = content;
-        this.author = author;
+        this.email = email;
         this.password = password;
     }
 
-    public void update (String name) {
+    public void update(String name) {
         this.name = name;
     }
 }

@@ -1,11 +1,11 @@
 package com.example.todoapp.jpa.dto;
 
-import com.example.todoapp.jpa.entity.User;
 import lombok.Getter;
 
 @Getter
-public class UpdateTodoRequest {
+public class CreateTodoRequest {
     private String name;
-    private String author;
+    private String content;
+    private Long authorId;
     private String password;
 }

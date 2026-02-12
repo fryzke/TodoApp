@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class CreateTodoListResponse {
+public class CreateTodoResponse {
     private final Long id;
     private final String name;
     private final String content;
@@ -13,7 +13,7 @@ public class CreateTodoListResponse {
     private final LocalDateTime createDate;
     private final LocalDateTime editDate;
 
-    public CreateTodoListResponse(Long id, String name, String content, String author, LocalDateTime createDate, LocalDateTime editDate) {
+    public CreateTodoResponse(Long id, String name, String content, String author, LocalDateTime createDate, LocalDateTime editDate) {
         this.id = id;
         this.name = name;
         this.content = content;
