@@ -1,6 +1,5 @@
 package com.example.todoapp.jpa.dto;
 
-import com.example.todoapp.jpa.entity.User;
 import lombok.Getter;
 
 @Getter

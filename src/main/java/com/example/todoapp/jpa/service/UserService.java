@@ -3,6 +3,7 @@ package com.example.todoapp.jpa.service;
 import com.example.todoapp.jpa.dto.*;
 import com.example.todoapp.jpa.entity.User;
 import com.example.todoapp.jpa.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,5 +93,18 @@ public class UserService {
             throw new IllegalStateException("존재하지 않는 사용자입니다.");
         }
         userRepository.deleteById(id);
+    }
+
+    //로그인
+    @Transactional(readOnly = true)
+    public SessionUser signin(@Valid SigninRequest request) {
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(
+                () -> new IllegalStateException("없는 유저입니다.")
+        );
+        return new SessionUser(
+                user.getId(),
+                user.getName(),
+                user.getEmail()
+        );
     }
 }

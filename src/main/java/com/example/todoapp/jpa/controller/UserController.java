@@ -1,7 +1,10 @@
 package com.example.todoapp.jpa.controller;
 
 import com.example.todoapp.jpa.dto.*;
+import com.example.todoapp.jpa.entity.User;
 import com.example.todoapp.jpa.service.UserService;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,17 @@ public class UserController {
 
     private final UserService userService;
 
+
+    //로그인
+    @PostMapping("/signin")
+    public ResponseEntity<Void> signin(
+            @Valid @RequestBody SigninRequest request, HttpSession session
+    ){
+        SessionUser sessionUser = userService.signin(request);
+        session.setAttribute("signinsUser", sessionUser);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
     // 사용자 생성 (회원가입)
     @PostMapping
     public ResponseEntity<CreateUserResponse> createUser(@RequestBody CreateUserRequest request) {

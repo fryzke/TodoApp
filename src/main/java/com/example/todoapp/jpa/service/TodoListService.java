@@ -2,10 +2,10 @@ package com.example.todoapp.jpa.service;
 
 import com.example.todoapp.jpa.dto.*;
 import com.example.todoapp.jpa.entity.TodoList;
+import com.example.todoapp.jpa.entity.User;
 import com.example.todoapp.jpa.repository.TodoListRepository;
 import com.example.todoapp.jpa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +28,7 @@ public class TodoListService {
         TodoList todoList = new TodoList(
                 request.getName(),
                 request.getContent(),
-                user, // String이 아닌 User 객체
+                user,
                 request.getPassword()
         );
 
